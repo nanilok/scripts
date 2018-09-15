@@ -1,0 +1,25 @@
+file="/home/lokesh/ssl3"
+gracedays=30 
+count=0
+printf "Hi All,\n\n"
+while read -r line
+do
+#printf '%10s' " $line -------- "
+output=`echo | openssl s_client -connect "${line}:443" -servername $line 2>/dev/null | openssl x509 -noout -dates | grep notAfter | sed -e 's#notAfter=##'` 
+#echo $output 
+ssldate=`date -d "${output}" '+%s'`
+         nowdate=`date '+%s'`
+         diff="$((${ssldate}-${nowdate}))"
+   if  test "${diff}" -lt  "$((${gracedays}*24*3600))";
+     then
+       if test "${diff}" -lt "0";
+     then
+       echo "The certificate for ${line} has already expired."
+     else
+	count=`expr $count + 1`
+       echo -e  "The certificate for ${line} will expire in $((${diff}/3600/24))  days."
+       fi
+   fi
+done < $file 
+printf "\n\nThe above ${count} clients  need to renew ssl certificates.\n"
+printf "Regards\nAdmin Team\n"
