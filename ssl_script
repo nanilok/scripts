@@ -11,14 +11,16 @@ ssldate=`date -d "${output}" '+%s'`
          nowdate=`date '+%s'`
          diff="$((${ssldate}-${nowdate}))"
    if  test "${diff}" -lt  "$((${gracedays}*24*3600))";
-     then
-       if test "${diff}" -lt "0";
-     then
-       echo "The certificate for ${line} has already expired."
-     else
-	count=`expr $count + 1`
-       echo -e  "The certificate for ${line} will expire in $((${diff}/3600/24))  days."
-       fi
+      then
+          if test "${diff}" -lt "0";
+          then
+          echo "The certificate for ${line} has already expired."
+          else
+	  count=`expr $count + 1`
+          echo -e  "The certificate for ${line} will expire in $((${diff}/3600/24))  days."
+          fi
+      else
+	  echo -e "No client is near to expiry"
    fi
 done < $file 
 printf "\n\nThe above ${count} clients  need to renew ssl certificates.\n"
